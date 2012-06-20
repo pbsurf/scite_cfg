@@ -1,0 +1,7 @@
+syntax: glob
+.*
+syntax/*
+*.so
+SciTE.properties
+SciTEGlobal.properties
+
