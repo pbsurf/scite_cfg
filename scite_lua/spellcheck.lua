@@ -121,7 +121,8 @@ function Inline_spell()
   buffer["SpellMode"] = true;
   -- without this call to Colourise, syntax highlighting will be broken
   -- in regions which haven't been displayed since document was opened
-  editor:Colourise(1, -1);
+  -- ... this no longer seems to be the case, Sept. 2012, v. 3.2
+  --editor:Colourise(1, -1);
   local alltext = editor:GetText();
   for word, wstart in Get_words(alltext) do
     --print("Checking: ", word);

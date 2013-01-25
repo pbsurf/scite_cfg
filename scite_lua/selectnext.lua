@@ -36,8 +36,5 @@ function select_prev()
   end
 end
 
-function this_is_a_test()
-end
-
 scite_Command("Select Next Occurrence|select_next|Ctrl+F3");
 scite_Command("Select Previous Occurrence|select_prev|Ctrl+Shift+F3");
