@@ -1,4 +1,4 @@
--- default to monospace font on open, while still retaining font settings for non-monospaced mode 
+-- default to monospace font on open, while still retaining font settings for non-monospaced mode
 -- buffer table is normally empty - it is for our use
 
 function setmonofont()
@@ -10,12 +10,17 @@ end
 
 -- OnOpen event generated when SciTE starts with new file, but not when File->New creates another new file tab.
 --  also, SciTE calls OnOpen with empty string as argument on startup
-scite_OnOpen(function(filename) if filename ~= "" then setmonofont(); end; end); -- for opening existing file
+scite_OnOpen(function(filename)
+  -- when scite first starts on Linux, OnOpen gets called with home folder path as filename
+  if filename ~= "" and string.sub(filename, -1) ~= "/" then
+    setmonofont();
+  end;
+end); -- for opening existing file
 scite_OnSavePointLeft(setmonofont); -- first character typed in new file
 
 --scite_OnSavePointReached(function() print("OnSavePointReached", buffer ~= nil); end)
---scite_OnSavePointLeft((function() print("OnSavePointLeft", buffer ~= nil); end))  
---scite_OnOpen((function(ff) print("OnOpen: ", ff == "", buffer ~= nil); end))  
+--scite_OnSavePointLeft((function() print("OnSavePointLeft", buffer ~= nil); end))
+--scite_OnOpen((function(ff) print("OnOpen: ", ff == "", buffer ~= nil); end))
 -- set first file to mono also
 --scite.MenuCommand(IDM_MONOFONT);  -- only event on startup is OnOpen, but with buffer undefined
 
