@@ -63,3 +63,20 @@ end
 
 -- Open URL by double click
 scite_OnDoubleClick(open_url);
+
+function google_selection()
+  -- on Linux, we would use xdg-open instead of start
+  local s = props.CurrentSelection;
+  if s ~= "" then
+    local cmd = 'start "Google Search" "www.google.com/search?hl=en&q='..string.gsub(s, "%s", "+")..'"';
+    if spawner then
+      -- this has the advantage of not showing terminal window;
+      -- not using scite_Popen since it creates a temp file to get output when falling back to os.execute
+      spawner.popen(cmd);
+    else
+      os.execute(cmd);
+    end
+  end
+end
+
+scite_Command('Google|google_selection|Context')
