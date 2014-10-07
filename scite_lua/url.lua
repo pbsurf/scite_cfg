@@ -7,7 +7,7 @@ function open_url()
   local line, column = editor:GetCurLine();
   local matchstrs = {"http[s]?://[^%s'\"<>]+", "www%.[^%s'\"<>]+", "ftp://[^%s'\"<>]+", "ftp%.[^%s'\"<>]+", "%[%[([^%]]+)%]%]"};
   local start,stop = nil,1;
-  local target = nil;
+  local target, section;
   local ii = 1;
   while ii <= #matchstrs do
     start, stop, target = string.find(line, matchstrs[ii], stop);
@@ -22,6 +22,7 @@ function open_url()
   if start then
     -- for now, the only capture is for a [[ ]] link to local file; let's try to find the file
     if target then
+      target, section = string.match(target, "^([^#]+)#?(.*)$");
       -- FileDir does not include trailing slash according to scite docs
       local dir = props['FileDir'];
       while dir do
@@ -31,6 +32,9 @@ function open_url()
             editor:SetSel(-1, editor.CurrentPos);
             scite.Open(dir.."/"..target..ext);
             -- can't figure out how to prevent uncommanded creation of selection in new doc
+            if string.len(section) then
+              editor:SearchNext(0, "# "..section.." #");
+            end
             return;
           end
         end
@@ -39,10 +43,13 @@ function open_url()
       end
     else
       local lastchar = string.sub(line, stop, stop);
-      if lastchar == "," or lastchar == "." then
-        -- exclude trailing comma or period
+      if lastchar == "," or lastchar == "." or lastchar == ":" or lastchar == ";" then
+        -- exclude trailing punctuation
         stop = stop - 1;
-      elseif lastchar == ")" then
+        lastchar = string.sub(line, stop, stop);
+        -- fall through to ')' check to handle '),' etc.
+      end
+      if lastchar == ")" then
         -- determine if trailing ')' is part of URL by checking for a '(' immediately before URL
         -- can't use "%b()" since there is no requirement that parenthesis in URLs be balanced!
         if string.match( string.sub(line, 1, start-1), "%(%s*$" ) then
