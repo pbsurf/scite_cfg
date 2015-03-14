@@ -1,5 +1,6 @@
 -- Find URL
 -- Jan 2013: Now supports links to local files in [[ ]]
+-- TODO: support bare URLs like "google.com"
 
 function open_url()
   -- read in entire line, search for urls, pick the one that contains the current position
