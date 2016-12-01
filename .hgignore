@@ -2,6 +2,10 @@ syntax: glob
 .*
 syntax/*
 *.so
+*.html
+*.png
+*.jpg
+scite.1
 SciTE.properties
 SciTEGlobal.properties
 
