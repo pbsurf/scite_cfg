@@ -1,5 +1,5 @@
--- Select next or previous occurrence of currently selected word
--- ref: http://scintilla.org/PaneAPI.html
+-- Use Shift+Ins to paste primary selection via xsel, matching terminal behavior
+-- note that you can alternatively copy to normal clipboard from terminal with Ctrl+Alt+C
 
 function paste_primary()
   local f = spawner.popen("xsel")
