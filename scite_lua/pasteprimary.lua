@@ -1,5 +1,5 @@
--- Use Shift+Ins to paste primary selection via xsel, matching terminal behavior
--- note that you can alternatively copy to normal clipboard from terminal with Ctrl+Alt+C
+-- Use xsel to read primary selection and paste it into editor
+-- use Shift+Ins shortcut to match terminal behavior
 
 function paste_primary()
   local f = spawner.popen("xsel")
