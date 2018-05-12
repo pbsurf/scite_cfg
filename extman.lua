@@ -19,7 +19,7 @@
 -- useful function for getting a property, or a default if not present.
 function scite_GetProp(key,default)
    local val = props[key]
-   if val and val ~= '' then return val 
+   if val and val ~= '' then return val
    else return default end
 end
 
@@ -43,6 +43,7 @@ local _UserListSelection
 local _Key = {}
 local _DwellStart = {}
 local _Close = {}
+local _Clear = {}
 -- new
 local _remove = {}
 local append = table.insert
@@ -62,8 +63,8 @@ function quote_if_needed(target)
 end
 
 function OnUserListSelection(tp,str)
-  if _UserListSelection then 
-     local callback = _UserListSelection 
+  if _UserListSelection then
+     local callback = _UserListSelection
      _UserListSelection = nil
      return callback(str)
   else return false end
@@ -153,6 +154,10 @@ function OnClose()
     return DispatchOne(_Close)
 end
 
+function OnClear()
+    return DispatchOne(_Clear)
+end
+
 -- may optionally ask that this handler be immediately
 -- removed after it's called
 local function append_unique(tbl,fn,rem)
@@ -161,13 +166,13 @@ local function append_unique(tbl,fn,rem)
      once_only = fn == 'once'
      fn = rem
      rem = nil
-     if once_only then 
+     if once_only then
         _remove[fn] = fn
-    end  
+    end
   else
     _remove[fn] = nil
   end
-  local idx 
+  local idx
   for i,handler in pairs(tbl) do
      if handler == fn then idx = i; break end
   end
@@ -179,7 +184,7 @@ local function append_unique(tbl,fn,rem)
     if not rem then
       append(tbl,fn)
     end
-  end        
+  end
 end
 
 -- this is how you register your own handlers with extman
@@ -220,7 +225,7 @@ function scite_OnUpdateUI(fn,rem)
 end
 
 function scite_OnChar(fn,rem)
-  append_unique(_Char,fn,rem)  
+  append_unique(_Char,fn,rem)
 end
 
 function scite_OnOpenSwitch(fn,rem)
@@ -238,6 +243,10 @@ end
 
 function scite_OnClose(fn,rem)
     append_unique(_Close,fn,rem)
+end
+
+function scite_OnClear(fn,rem)
+    append_unique(_Clear,fn,rem)
 end
 
 local function buffer_switch(f)
@@ -284,7 +293,7 @@ local wordchars = '[A-Za-zÀ-Ýà-ÿ]'  -- wuz %w
 
  local function on_word_char(s)
      if not in_word then
-        if find(s,wordchars) then  
+        if find(s,wordchars) then
       -- we have hit a word!
          word_start = editor.CurrentPos
          in_word = true
@@ -292,7 +301,7 @@ local wordchars = '[A-Za-zÀ-Ýà-ÿ]'  -- wuz %w
       end
     else -- we're in a word
    -- and it's another word character, so collect
-     if find(s,wordchars) then   
+     if find(s,wordchars) then
        current_word = current_word..s
      else
        -- leaving a word; call the handler
@@ -300,16 +309,16 @@ local wordchars = '[A-Za-zÀ-Ýà-ÿ]'  -- wuz %w
        DispatchOne(_Word, {word=current_word,
                startp=word_start,endp=editor.CurrentPos,
                ch = s
-            })     
+            })
        in_word = false
-     end   
-    end 
+     end
+    end
   -- don't interfere with usual processing!
     return false
-  end  
+  end
 
 function scite_OnWord(fn,rem)
-  append_unique(_Word,fn,rem)   
+  append_unique(_Word,fn,rem)
   if not rem then
      scite_OnChar(on_word_char)
   else
@@ -359,7 +368,7 @@ local function on_line_output_char(ch)
 end
 
 local function set_line_handler(fn,rem,handler,on_char)
-  append_unique(handler,fn,rem)   
+  append_unique(handler,fn,rem)
   if not rem then
      scite_OnChar(on_char)
   else
@@ -368,9 +377,9 @@ local function set_line_handler(fn,rem,handler,on_char)
 end
 
 function scite_OnEditorLine(fn,rem)
-  set_line_handler(fn,rem,_LineEd,on_line_editor_char)  
+  set_line_handler(fn,rem,_LineEd,on_line_editor_char)
 end
- 
+
 function scite_OnOutputLine(fn,rem)
   set_line_handler(fn,rem,_LineOut,on_line_output_char)
 end
@@ -421,13 +430,13 @@ end
 -- a general popen function that uses the spawner library if found; otherwise falls back
 -- on os.execute
 function scite_Popen(cmd)
-    if spawner then        
+    if spawner then
         return spawner.popen(cmd)
     else
         cmd = cmd..' > '..tempfile
-        if  GTK then -- io.popen is dodgy; don't use it!            
+        if  GTK then -- io.popen is dodgy; don't use it!
             os.execute(cmd)
-        else            
+        else
             if Execute then -- scite_other was found!
                 Execute(cmd)
             else
@@ -435,11 +444,11 @@ function scite_Popen(cmd)
             end
        end
        return io.open(tempfile)
-    end	
+    end
 end
 
-function dirmask(mask,isdir)    
-    local attrib = '' 
+function dirmask(mask,isdir)
+    local attrib = ''
     if isdir then
         if not GTK then
             attrib = ' /A:D '
@@ -460,7 +469,7 @@ function scite_Files(mask)
     local f,path,cmd,_
     if not GTK then
         cmd = dirmask(mask)
-        path = mask:match('(.*\\)')  or '.\\'	
+        path = mask:match('(.*\\)')  or '.\\'
     else
         cmd = 'ls -1 '..mask
         path = ''
@@ -486,7 +495,7 @@ function scite_Directories(path,exclude_pat)
     else
         cmd = dirmask(path,true)
     end
-    path = path..dirsep    
+    path = path..dirsep
     local f = scite_Popen(cmd)
     local files = {}
     if not f then return files end
@@ -504,7 +513,7 @@ function scite_Directories(path,exclude_pat)
         end
     end
     f:close()
-    return files	
+    return files
 end
 
 function scite_FileExists(f)
@@ -529,7 +538,7 @@ else
     -- what is the Win32 equivalent??
     function scite_DirectoryExists(path)
         return true
-    end    
+    end
 end
 
 function split(s,delim)
@@ -538,7 +547,7 @@ function split(s,delim)
         p = find(s,delim)
         if not p then
             append(res,s)
-            return res 
+            return res
         end
         append(res,sub(s,1,p-1))
         s = sub(s,p+1)
@@ -563,7 +572,7 @@ local function set_command(name,cmd,mode)
      end
      local which = '.'..idx..pattern
      props['command.name'..which] = name
-     props['command'..which] = cmd     
+     props['command'..which] = cmd
      props['command.subsystem'..which] = '3'
      props['command.mode'..which] = md
      name_id_map[name] = 1100+idx
@@ -574,7 +583,7 @@ local function check_gtk_alt_shortcut(shortcut,name)
    -- Alt+<letter> shortcuts don't work for GTK, so handle them directly...
    local _,_,letter = shortcut:find('^Alt%+([A-Z])$')
    if _ then
-        alt_letter_map[letter:lower()] = name		    
+        alt_letter_map[letter:lower()] = name
         if not alt_letter_map_init then
             alt_letter_map_init = true
             scite_OnKey(function(key,shift,ctrl,alt)
@@ -637,7 +646,7 @@ function scite_Command(tbl)
      for ii = 10,idx do
         if props['command.name.'..ii..mode] == name then old_idx = ii end
      end
-     if old_idx == 0 then	 
+     if old_idx == 0 then
         local which = set_command(name,cmd,mode)
          if shortcut then
             set_shortcut(shortcut,name,which)
@@ -652,7 +661,7 @@ end
 function scite_MenuCommand(cmd)
     if type(cmd) == 'string' then
         cmd = name_id_map[cmd]
-        if not cmd then return end		
+        if not cmd then return end
     end
     scite.MenuCommand(cmd)
 end
@@ -694,14 +703,14 @@ if not scite_DirectoryExists(lua_path) then
 end
 
 function load_script_list(script_list,path)
-    if not script_list then 
+    if not script_list then
       print('Error: no files found in '..path)
     else
       current_filepath = path
       for i,file in pairs(script_list) do
         silent_dofile(file)
       end
-    end	
+    end
 end
 
 -- Load all scripts in the lua_path (usually 'scite_lua'), including within any subdirectories
