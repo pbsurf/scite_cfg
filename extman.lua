@@ -427,24 +427,23 @@ else
     print('cannot load spawner '..err)
 end
 
--- a general popen function that uses the spawner library if found; otherwise falls back
--- on os.execute
+-- a general popen function that uses the spawner library if found; otherwise falls back on os.execute
+-- mwhite 2018-05-12: changed to use io.popen by default on Linux since that doesn't leave defunct process;
+--  still prefer spawner.popen on windows since that doesn't flash terminal window
 function scite_Popen(cmd)
+    if GTK then
+        return io.popen(cmd)
+    end
     if spawner then
         return spawner.popen(cmd)
-    else
-        cmd = cmd..' > '..tempfile
-        if  GTK then -- io.popen is dodgy; don't use it!
-            os.execute(cmd)
-        else
-            if Execute then -- scite_other was found!
-                Execute(cmd)
-            else
-                os.execute(cmd)
-            end
-       end
-       return io.open(tempfile)
     end
+    cmd = cmd..' > '..tempfile
+    if Execute then -- scite_other was found!
+        Execute(cmd)
+    else
+        os.execute(cmd)
+    end
+    return io.open(tempfile)
 end
 
 function dirmask(mask,isdir)
