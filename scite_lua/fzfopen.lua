@@ -36,7 +36,8 @@ function getroot()
   local f = nil
   if scite_GetProp('PLAT_GTK') then
     -- use `pwd` instead of `echo $HOME` to default to directory where SciTE was launched
-    f = io.popen([[hg root 2> /dev/null || git rev-parse --show-toplevel 2> /dev/null || pwd]])
+    -- try git before hg because hg will pick up ~/.hg if nothing else
+    f = io.popen([[git rev-parse --show-toplevel 2> /dev/null || hg root 2> /dev/null || pwd]])
   else
     f = spawner.popen([[hg root 2> nul || git rev-parse --show-toplevel 2> nul || echo D:\\home]])
   end
