@@ -4,7 +4,7 @@
 
 local strfind = string.find
 local strlen = string.len
-local gfind = string.gfind
+local gfind = string.gfind or string.gmatch
 
 scite_Command {
   'Show Outline|toggle_outline',
@@ -21,12 +21,12 @@ function toggle_outline()
      if editor.FoldLevel[i] < SC_FOLDLEVELHEADERFLAG then
         editor:HideLines(i,i)
      end
-  end   
+  end
 end
 
 local function set_level(i,lev,fold)
   local foldlevel = lev + SC_FOLDLEVELBASE
-  if fold then 
+  if fold then
      foldlevel = foldlevel + SC_FOLDLEVELHEADERFLAG
      editor.FoldExpanded[i] = true
   end
@@ -41,9 +41,9 @@ local function get_level(i)
   local level_flags = editor.FoldLevel[i] - SC_FOLDLEVELBASE
   if level_flags - SC_FOLDLEVELHEADERFLAG >= 0 then
     fold = true
-    level_flags = level_flags - SC_FOLDLEVELHEADERFLAG 
+    level_flags = level_flags - SC_FOLDLEVELHEADERFLAG
   end
-  return level_flags, fold  
+  return level_flags, fold
 end
 
 local txt_extensions = {}
@@ -51,18 +51,18 @@ local txt_ext_prop = nil
 local file_ext
 
 local function is_text_file(file)
-  local te = props['text.outline.ext']  
+  local te = props['text.outline.ext']
   if te ~= txt_ext_prop then
      txt_ext_prop = te
      if te == '' then txt_extensions['txt'] = true
      else -- expecting something like '*.txt;*.doc' etc
-       for w in string.gfind(txt_ext_prop,'[^;]+') do
+       for w in gfind(txt_ext_prop,'[^;]+') do
           local ext = string.sub(w,3)
           txt_extensions[ext] = true
         end
      end
   end
-  file_ext = props['FileExt']  
+  file_ext = props['FileExt']
   local ret = txt_extensions[file_ext]
   if not ret and scite_GetProp 'PLAT_WIN' then
      ret = txt_extensions[string.lower(file_ext)]
@@ -86,19 +86,19 @@ local function explicit_match(line)
 end
 
 local function number_match(line)
-     if strfind(line,'^%d+%.') then 
+     if strfind(line,'^%d+%.') then
         local _,_,heading = strfind(line,'([%d%.]+)')
         local k = 0
         for x in gfind(heading,'[^%.]+') do k = k + 1 end
         return k
-    end  
+    end
 end
 
 local function prefix_match(line)
      local _,_,prefix = strfind(line,outline_pat)
      if prefix then
          return strlen(prefix) - start_depth
-     end 
+     end
 end
 
 function process_line(i,line)
@@ -108,7 +108,7 @@ function process_line(i,line)
         set_level(i,lev-1,true)
    else
         set_level(i,lev)
-   end 
+   end
 end
 
 -- there are some characters which are 'magic'
@@ -121,7 +121,7 @@ local function regexp_quote(ch)
   end
 end
 
-function process_file(file)  
+function process_file(file)
   in_text_file = is_text_file(file)
   if not in_text_file then return end
   txt_files[file] = true
@@ -147,7 +147,7 @@ function process_file(file)
   end
 end
 
--- yes, this can all be done w/out extman! 
+-- yes, this can all be done w/out extman!
 -- But OnEditorLine() is not a builtin SciTE event,
 -- so check the extman source for the implementation.
 
@@ -168,9 +168,9 @@ scite_OnEditorLine(function(line)
     if l < 0 then
       nlev,fold = 0,false
     else
-      nlev,fold = get_level(l-1)      
+      nlev,fold = get_level(l-1)
     end
-    if not fold then lev = nlev 
+    if not fold then lev = nlev
                 else lev = nlev + 1
                 end
     set_level(l+1,lev)

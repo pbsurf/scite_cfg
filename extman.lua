@@ -423,7 +423,7 @@ else
 end
 if fn then
     fn() -- register spawner
-else
+elseif not GTK then
     print('cannot load spawner '..err)
 end
 
@@ -531,7 +531,7 @@ end
 -- (Nicolas)
 if GTK then
     function scite_DirectoryExists(path)
-        return os.execute('test -d "'..path..'"') == 0
+        return os.execute('test -d "'..path..'"') -- == 0
     end
 else
     -- what is the Win32 equivalent??
@@ -554,6 +554,7 @@ function split(s,delim)
 end
 
 function splitv(s,delim)
+    local unpack = unpack or table.unpack
     return unpack(split(s,delim))
 end
 
