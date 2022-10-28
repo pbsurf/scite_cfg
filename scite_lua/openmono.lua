@@ -4,7 +4,7 @@
 function setmonofont()
   if buffer and not buffer["MadeMonospace"] then  -- and props["FileExt"] ~= "txt", etc
     scite.MenuCommand(IDM_MONOFONT)
-    buffer["MadeMonospace"] = true;
+    buffer["MadeMonospace"] = true
   end
 end
 
@@ -13,10 +13,10 @@ end
 scite_OnOpen(function(filename)
   -- when scite first starts on Linux, OnOpen gets called with home folder path as filename
   if filename ~= "" and string.sub(filename, -1) ~= "/" then
-    setmonofont();
-  end;
-end); -- for opening existing file
-scite_OnSavePointLeft(setmonofont); -- first character typed in new file
+    setmonofont()
+  end
+end) -- for opening existing file
+scite_OnSavePointLeft(setmonofont) -- first character typed in new file
 
 --scite_OnSavePointReached(function() print("OnSavePointReached", buffer ~= nil); end)
 --scite_OnSavePointLeft((function() print("OnSavePointLeft", buffer ~= nil); end))

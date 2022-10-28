@@ -37,6 +37,7 @@ function getroot()
   if scite_GetProp('PLAT_GTK') then
     -- use `pwd` instead of `echo $HOME` to default to directory where SciTE was launched
     -- try git before hg because hg will pick up ~/.hg if nothing else
+    -- bash -i -c 'echo ${SCITE_CWD:-`pwd`}' almost works w/ SCITE_CWD in .localrc ... but freezes at startup
     f = io.popen([[git rev-parse --show-toplevel 2> /dev/null || hg root 2> /dev/null || pwd]])
   else
     f = spawner.popen([[hg root 2> nul || git rev-parse --show-toplevel 2> nul || echo D:\\home]])
@@ -59,8 +60,12 @@ function fzf_open()
     f = io.popen("cd "..dir..[[ && x-terminal-emulator -e sh -c "rg --files | fzf >&3" 3>&1]])
   else
     local drive = string.match(dir, '^(%a:)') or 'cd .'
+    local utilpath = scite_GetProp('WinUtilPath', '')
+    if utilpath ~= "" and string.sub(utilpath, -1) ~= "\\" then
+      utilpath = utilpath.."\\"
+    end
     -- io.popen() opens terminal on windows, which is exactly what we want in this case
-    f = io.popen(drive.." && cd "..dir..[[ && ag -g "" | fzf --multi]])
+    f = io.popen(drive.." && cd "..dir.." && "..utilpath..'ag.exe -g "" | '..utilpath.."fzf.exe --multi")
   end
   local s = f:read("*a")
   f:close()

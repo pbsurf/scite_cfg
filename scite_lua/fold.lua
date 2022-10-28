@@ -4,7 +4,7 @@
 
 local strfind = string.find
 local strlen = string.len
-local gfind = string.gfind or string.gmatch
+local gfind = string.gfind
 
 scite_Command {
   'Show Outline|toggle_outline',
@@ -56,7 +56,7 @@ local function is_text_file(file)
      txt_ext_prop = te
      if te == '' then txt_extensions['txt'] = true
      else -- expecting something like '*.txt;*.doc' etc
-       for w in gfind(txt_ext_prop,'[^;]+') do
+       for w in string.gmatch(txt_ext_prop,'[^;]+') do
           local ext = string.sub(w,3)
           txt_extensions[ext] = true
         end
@@ -186,4 +186,3 @@ scite_OnDoubleClick(function()
   print(get_level(l))
 end)
 ]]
-

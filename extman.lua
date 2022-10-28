@@ -411,6 +411,7 @@ function extman_Path()
     return extman_path
 end
 
+-- Note 2022-8-12: spawner (and hunspell.dll) need to be rebuilt for newer versions of SciTE
 -- this version of scite-gdb uses the new spawner extension library.
 local fn,err,spawner_path
 if package then loadlib = package.loadlib end
@@ -423,8 +424,8 @@ else
 end
 if fn then
     fn() -- register spawner
-elseif not GTK then
-    print('cannot load spawner '..err)
+else  --if not GTK then
+    print('cannot load spawner from '..spawner_path..' - '..err)
 end
 
 -- a general popen function that uses the spawner library if found; otherwise falls back on os.execute
@@ -477,7 +478,7 @@ function scite_Files(mask)
     local files = {}
     if not f then return files end
     for line in f:lines() do
-   --     print(path..line)
+        --print(path..line)
         append(files,path..line)
     end
     f:close()
@@ -554,8 +555,7 @@ function split(s,delim)
 end
 
 function splitv(s,delim)
-    local unpack = unpack or table.unpack
-    return unpack(split(s,delim))
+    return (unpack or table.unpack)(split(s,delim))
 end
 
 local idx = 10

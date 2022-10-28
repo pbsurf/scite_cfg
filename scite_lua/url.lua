@@ -53,7 +53,7 @@ function open_url()
   local row = editor.CurrentPos;
   local line, column = editor:GetCurLine();
   local start, stop, target, section;
-  local scite_exts = {["mdwn"]=1, ["txt"]=1};
+  local scite_exts = {["mdwn"]=1, ["txt"]=1, ["md"]=1, [""]=1};
 
   -- wiki-style link to local file
   start, stop, target = find_around(line, column, "%[%[([^%]]+)%]%]");
@@ -62,11 +62,11 @@ function open_url()
     -- FileDir does not include trailing slash according to scite docs
     local dir = props['FileDir'];
     while dir do
-      for _, ext in ipairs({"", ".mdwn", ".txt"}) do
+      for _, ext in ipairs({"", ".md", ".mdwn", ".txt"}) do
         --print("Looking for "..dir.."/"..target..ext);
         local fullpath = dir.."/"..target..ext;
         if scite_FileExists(fullpath) then
-          if scite_GetProp('PLAT_GTK') or scite_exts[string.match(fullpath, '%.(%a+)$')] then
+          if scite_GetProp('PLAT_GTK') or scite_exts[string.match(fullpath, '%.(%w+)$') or ""] then
             editor:SetSel(-1, editor.CurrentPos);
             scite.Open(fullpath);
             -- can't figure out how to prevent uncommanded creation of selection in new doc
@@ -118,7 +118,7 @@ function open_url()
     if no_scihub[doi_prefix] then
       run_cmd('start "Open DOI" "http://dx.doi.org/'..target..'"');
     else
-      run_cmd('start "Open Sci-Hub" "https://sci-hub.tw/'..target..'"');
+      run_cmd('start "Open Sci-Hub" "https://sci-hub.se/'..target..'"');
     end
     return;
   end
