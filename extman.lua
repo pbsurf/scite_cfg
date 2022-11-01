@@ -424,7 +424,7 @@ else
 end
 if fn then
     fn() -- register spawner
-else  --if not GTK then
+elseif not GTK then
     print('cannot load spawner from '..spawner_path..' - '..err)
 end
 
